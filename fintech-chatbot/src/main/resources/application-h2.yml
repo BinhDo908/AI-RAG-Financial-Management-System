@@ -1,0 +1,16 @@
+# Chạy thử trên máy KHÔNG cần Docker / PostgreSQL: dữ liệu lưu ở file ./data/fintech-dev.mv.db (H2, chế độ PostgreSQL).
+# Kích hoạt cùng profile dev: --spring.profiles.active=dev,h2
+# RAG trên H2 tính độ tương đồng cosine trong Java (chậm hơn pgvector nhưng đủ cho kho tài liệu nhỏ).
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/fintech-dev;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;AUTO_SERVER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+app:
+  admin:
+    # Tài khoản admin CHỈ dùng cho bản chạy thử local (profile h2): admin@fintech.local / Admin12345.
+    # Đặt ADMIN_PASSWORD để dùng mật khẩu khác; không dùng giá trị này cho môi trường thật.
+    email: ${ADMIN_EMAIL:admin@fintech.local}
+    password: ${ADMIN_PASSWORD:Admin12345}

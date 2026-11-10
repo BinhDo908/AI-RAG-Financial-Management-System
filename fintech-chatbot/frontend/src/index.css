@@ -1,0 +1,370 @@
+@import "tailwindcss";
+
+/*
+ * Hệ thiết kế: trung tính ấm (stone) + mực (ink) cho hành động chính + một màu xanh "tiền" (accent)
+ * chỉ dùng cho số dương, trạng thái và focus. Viền mảnh thay vì đổ bóng; font hệ thống; số liệu tabular.
+ */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+
+  --color-ink: #1c1917;
+  --color-accent-50: #eef6f1;
+  --color-accent-100: #d6ebdf;
+  --color-accent-500: #2f8a5b;
+  --color-accent-600: #1f7a4d;
+  --color-accent-700: #17633e;
+  --color-negative: #b42318;
+  --color-aqua-50: #eefbfb;
+  --color-aqua-200: #b4e9ea;
+  --color-aqua-300: #93dfe0;
+
+  /* Easing mạnh cho UI (ease-out) và di chuyển trên màn hình (ease-in-out) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  #root {
+    height: 100dvh;
+  }
+
+  body {
+    background: #fafaf9;
+    color: #292524;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  button,
+  a,
+  select,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* Ô nhập ≥ 16px trên điện thoại để iOS không tự phóng to */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  @media (min-width: 640px) {
+    input,
+    select,
+    textarea {
+      font-size: 14px;
+    }
+  }
+
+  ::selection {
+    background: var(--color-accent-100);
+  }
+}
+
+@layer components {
+  /* Nút: phản hồi ngay khi nhấn (scale 0.97, 160ms ease-out) */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    height: 2.25rem;
+    padding: 0 0.875rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    user-select: none;
+    transition:
+      transform 160ms var(--ease-out),
+      background-color 150ms ease,
+      border-color 150ms ease,
+      color 150ms ease;
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-sm {
+    height: 2rem;
+    padding: 0 0.625rem;
+    font-size: 0.8125rem;
+  }
+  .btn-primary {
+    background: var(--color-ink);
+    color: #fafaf9;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: #44403c;
+  }
+  .btn-secondary {
+    background: #fff;
+    color: #292524;
+    border: 1px solid #e7e5e4;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: #d6d3d1;
+    background: #fafaf9;
+  }
+  .btn-ghost {
+    color: #57534e;
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: #f5f5f4;
+    color: #1c1917;
+  }
+  .btn-danger {
+    color: var(--color-negative);
+    border: 1px solid #f5d0cc;
+    background: #fff;
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: #fef3f2;
+  }
+  .btn-icon {
+    width: 2.25rem;
+    padding: 0;
+  }
+
+  .input {
+    width: 100%;
+    height: 2.25rem;
+    padding: 0 0.625rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e7e5e4;
+    background: #fff;
+    color: #1c1917;
+    outline: none;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+  textarea.input {
+    height: auto;
+    padding: 0.5rem 0.625rem;
+  }
+  .input::placeholder {
+    color: #a8a29e;
+  }
+  .input:focus {
+    border-color: var(--color-accent-500);
+    box-shadow: 0 0 0 3px var(--color-accent-100);
+  }
+
+  /* Ô chọn kỳ ở Tổng quan: bỏ mũi tên mặc định, biểu tượng do component đặt đè */
+  .period-select {
+    appearance: none;
+    height: 2.5rem;
+    padding-left: 0.875rem;
+    border-radius: 0.625rem;
+    border: 1px solid #e7e5e4;
+    background: #fff;
+    color: #1c1917;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+  .period-select:focus-visible {
+    border-color: var(--color-accent-500);
+    box-shadow: 0 0 0 3px var(--color-accent-100);
+  }
+
+  /* Thẻ chênh lệch: nền xanh ngọc nhạt dần sang trung tính */
+  .net-card {
+    background: linear-gradient(105deg, var(--color-aqua-200) 0%, #d9f5f5 45%, #e6f8f8 70%, #eeeeee 100%);
+  }
+
+  .label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #44403c;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Phần tử mới xuất hiện (tin nhắn, panel): mờ + nhích nhẹ, 200ms ease-out */
+  .enter {
+    transition:
+      opacity 200ms var(--ease-out),
+      transform 200ms var(--ease-out);
+    @starting-style {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+
+  /* Hộp thoại: nền mờ dần; panel phóng từ 0.96 (không từ 0) — trên điện thoại trượt lên từ đáy */
+  .dialog-scrim {
+    transition: opacity 200ms var(--ease-out);
+    @starting-style {
+      opacity: 0;
+    }
+  }
+  .dialog-panel {
+    transition:
+      opacity 200ms var(--ease-out),
+      transform 240ms var(--ease-out);
+    @starting-style {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+  @media (min-width: 640px) {
+    .dialog-panel {
+      @starting-style {
+        opacity: 0;
+        transform: scale(0.96);
+      }
+    }
+  }
+
+  /* Thanh đo (ngân sách): độ dài thay đổi mượt khi đổi tháng */
+  .meter-fill {
+    transition: width 400ms var(--ease-out);
+  }
+
+  /* Ô số tiền lớn trong form giao dịch */
+  .input-amount {
+    height: 3rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog-panel {
+    @starting-style {
+      transform: none;
+    }
+  }
+  .meter-fill {
+    transition: none;
+  }
+  .enter {
+    transition: opacity 150ms ease;
+    @starting-style {
+      transform: none;
+    }
+  }
+  .btn:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Nội dung markdown trong câu trả lời của chatbot */
+.prose-chat {
+  line-height: 1.65;
+  color: #292524;
+}
+.prose-chat > :first-child {
+  margin-top: 0;
+}
+.prose-chat > :last-child {
+  margin-bottom: 0;
+}
+.prose-chat p {
+  margin: 0.5rem 0;
+}
+.prose-chat ul {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+.prose-chat ol {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+  list-style: decimal;
+}
+.prose-chat li {
+  margin: 0.25rem 0;
+}
+.prose-chat li::marker {
+  color: #a8a29e;
+}
+.prose-chat strong {
+  font-weight: 600;
+  color: #1c1917;
+}
+.prose-chat em {
+  color: #78716c;
+  font-style: normal;
+  font-size: 0.8125rem;
+}
+.prose-chat table {
+  margin: 0.75rem 0;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+.prose-chat th,
+.prose-chat td {
+  border-bottom: 1px solid #e7e5e4;
+  padding: 0.375rem 0.5rem;
+  text-align: left;
+}
+.prose-chat code {
+  border-radius: 0.25rem;
+  background: #f5f5f4;
+  padding: 0.0625rem 0.25rem;
+  font-size: 0.85em;
+}
+
+/* Con trỏ nhấp nháy ở cuối câu trả lời đang stream */
+.streaming-caret > :last-child::after {
+  content: "";
+  display: inline-block;
+  width: 0.45em;
+  height: 1em;
+  margin-left: 0.15em;
+  vertical-align: -0.12em;
+  background: #a8a29e;
+  animation: caret-blink 1s steps(1) infinite;
+}
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .streaming-caret > :last-child::after {
+    animation: none;
+  }
+}
+
+/* Mascot: bong bóng thoại bật lên khi đổi lời */
+.mascot-bubble {
+  animation: mascot-bubble 220ms var(--ease-out);
+  transform-origin: bottom center;
+}
+@keyframes mascot-bubble {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mascot-bubble {
+    animation: none;
+  }
+}

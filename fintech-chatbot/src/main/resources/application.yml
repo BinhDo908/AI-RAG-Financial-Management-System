@@ -1,0 +1,101 @@
+spring:
+  application:
+    name: fintech-chatbot
+  profiles:
+    default: dev
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/fintech}
+    username: ${DB_USERNAME:fintech}
+    password: ${DB_PASSWORD:fintech}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Schema do Flyway quản lý; Hibernate chỉ kiểm tra entity có khớp bảng không
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Ho_Chi_Minh
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+
+  flyway:
+    enabled: true
+    # {vendor} = postgresql | h2: migration riêng cho bảng vector (pgvector chỉ có trên PostgreSQL)
+    locations: classpath:db/migration,classpath:db/vendor/{vendor}
+
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+    serialization:
+      write-dates-as-timestamps: false
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+server:
+  port: ${PORT:8080}
+
+app:
+  jwt:
+    # Bắt buộc đặt biến môi trường JWT_SECRET (>= 32 ký tự) khi chạy thật
+    secret: ${JWT_SECRET:}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:1440}
+  security:
+    max-failed-logins: 5
+    login-lock-minutes: 15
+  ai:
+    # Mặc định Vilao AI; nhà cung cấp khác tương thích OpenAI API cũng dùng được bằng cách đổi base-url.
+    # Chưa có API key → app vẫn chạy, riêng các chức năng AI trả lỗi AI_NOT_CONFIGURED.
+    timeout-seconds: ${AI_TIMEOUT_SECONDS:60}
+    chat:
+      base-url: ${AI_CHAT_BASE_URL:https://api.vilao.ai/v1}
+      api-key: ${VILAO_API_KEY:}
+      # Model chat mặc định; Admin có thể đổi ở UC-C04 (khóa llm.model)
+      model: ${AI_CHAT_MODEL:chib/gemini-3.8-flash}
+    # Yêu cầu dự phòng song song: model chính chưa trả lời (stream: chưa ra chữ đầu) sau hedge-after-ms thì gửi thêm
+    # yêu cầu tới fallback-model (nhà cung cấp khác), lấy kết quả về trước; lỗi tạm thời thì chuyển ngay. 0 = tắt.
+    # 4s ≈ p75 của gemini-3.8-flash nên phần lớn lượt gọi không phát sinh thêm chi phí.
+    # Tốc độ từng nhà cung cấp trên Vilao dao động theo giờ.
+    hedge-after-ms: ${AI_HEDGE_AFTER_MS:4000}
+    fallback-model: ${AI_FALLBACK_MODEL:chib/glm-5.3-flash}
+    # Model cho từng tác vụ; để trống = dùng chat.model. Admin ghi đè ở UC-C04 (khóa llm.model.<tác vụ>).
+    # Đo lại 26/10/2026 (chiều), gọi xen kẽ, cùng prompt thật của app, độ đúng đều 100%:
+    #                         router (trung vị / p90)   trích xuất        trả lời (chữ đầu)
+    #   chib/gemini-3.8-flash   1,9s / 6,7s             2,0s / 3,1s       2,0s / 4,1s
+    #   chib/glm-5.3-flash      3,0s / 7,1s             1,9s / 9,0s       2,6s / 3,6s
+    #   chib/deepseek-v4.1-flash 3,1s / 7,5s            3,2s / 4,9s       2,3s / 18,7s
+    #   vgpt/gpt-6-sol          6,3s (router), 7,6s (trích xuất) — model suy luận, chậm và đắt
+    # → mọi tác vụ trả lời người dùng dùng gemini-3.8-flash (chat.model); glm-5.3-flash làm dự phòng.
+    # Judge (chấm điểm offline) giữ gpt-6-sol: khác họ với model trả lời để tránh tự chấm cho mình.
+    tasks:
+      router: ${AI_MODEL_ROUTER:}
+      extraction: ${AI_MODEL_EXTRACTION:}
+      answer: ${AI_MODEL_ANSWER:}
+      advice: ${AI_MODEL_ADVICE:}
+      judge: ${AI_MODEL_JUDGE:vgpt/gpt-6-sol}
+    embedding:
+      base-url: ${AI_EMBEDDING_BASE_URL:https://api.vilao.ai/v1}
+      api-key: ${AI_EMBEDDING_API_KEY:${VILAO_API_KEY:}}
+      # 3072 chiều. Đổi model embedding thì phải index lại toàn bộ kho tri thức
+      model: ${AI_EMBEDDING_MODEL:dg/text-embedding-3-large}
+    stt:
+      # Tùy chọn: chuyển giọng nói ở server. Để trống model thì dùng Web Speech API ở trình duyệt (UC-B03).
+      base-url: ${AI_STT_BASE_URL:https://api.vilao.ai/v1}
+      api-key: ${AI_STT_API_KEY:${VILAO_API_KEY:}}
+      model: ${AI_STT_MODEL:}
+  admin:
+    # Tài khoản admin được tạo lúc khởi động nếu chưa tồn tại (xem AdminSeeder)
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
+    full-name: Administrator
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha

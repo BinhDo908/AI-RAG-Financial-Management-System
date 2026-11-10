@@ -1,0 +1,13 @@
+# Cấu hình cho môi trường phát triển trên máy cá nhân.
+# Không dùng các giá trị này khi triển khai thật.
+app:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-change-me-dev-only-secret-change-me}
+  admin:
+    email: ${ADMIN_EMAIL:admin@fintech.local}
+    # Không có mật khẩu mặc định: đặt ADMIN_PASSWORD trước khi chạy lần đầu để tạo admin
+    password: ${ADMIN_PASSWORD:}
+
+logging:
+  level:
+    com.fintech.chatbot: DEBUG

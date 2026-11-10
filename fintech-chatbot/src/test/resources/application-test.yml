@@ -1,0 +1,36 @@
+# Test chạy trên H2 (chế độ PostgreSQL) với chính các migration Flyway,
+# và Hibernate ddl-auto=validate để kiểm tra entity khớp schema.
+spring:
+  datasource:
+    url: jdbc:h2:mem:fintech-test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+app:
+  jwt:
+    secret: test-secret-test-secret-test-secret-0123456789
+    expiration-minutes: 60
+  admin:
+    email: admin@test.local
+    password: AdminPass123
+  ai:
+    # Test không bao giờ gọi API thật (kể cả khi máy có biến VILAO_API_KEY); AI giả lập ở FakeAiConfig
+    chat:
+      api-key: ""
+    embedding:
+      api-key: ""
+    stt:
+      api-key: ""
+  scheduler:
+    # Test gọi DailyReminderJob.runFor(...) trực tiếp
+    enabled: false
+
+logging:
+  level:
+    com.fintech.chatbot: INFO

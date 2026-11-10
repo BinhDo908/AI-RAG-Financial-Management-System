@@ -1,0 +1,18 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.log
+
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+.env
+application-local.yml
+
+# Dữ liệu profile h2, giao diện đã build (sinh từ frontend/)
+data/
+src/main/resources/static/

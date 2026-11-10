@@ -1,0 +1,8 @@
+# Cấu hình cục bộ của Claude Code (chứa đường dẫn riêng của máy)
+.claude/
+
+# Hệ điều hành / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

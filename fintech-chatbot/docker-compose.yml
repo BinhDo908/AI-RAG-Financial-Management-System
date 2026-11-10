@@ -1,0 +1,19 @@
+services:
+  postgres:
+    # PostgreSQL 16 có sẵn extension pgvector (dùng cho RAG ở giai đoạn 3)
+    image: pgvector/pgvector:pg16
+    container_name: fintech-postgres
+    environment:
+      POSTGRES_DB: fintech
+      POSTGRES_USER: fintech
+      POSTGRES_PASSWORD: fintech
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+# Chat, embedding và giọng nói dùng API Vilao AI (biến môi trường VILAO_API_KEY), không cần container AI.
+
+volumes:
+  pgdata:
